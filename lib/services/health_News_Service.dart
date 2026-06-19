@@ -31,10 +31,14 @@ class HealthNewsItem {
 }
 
 class HealthNewsService {
-  static const String _apiKey = '549d849192e84b2d9c96d5e29f8ff3c5';
+  static const String _apiKey = String.fromEnvironment('NEWS_API_KEY');
   static const String _baseUrl = 'https://newsapi.org/v2/everything';
 
   static Future<List<HealthNewsItem>> fetchNews({required String query}) async {
+    if (_apiKey.isEmpty) {
+      print('NEWS_API_KEY غير مضبوط، سيتم تخطي جلب الأخبار الخارجية.');
+      return [];
+    }
     final url = Uri.parse('$_baseUrl?q=$query&language=ar&sortBy=publishedAt&pageSize=10&apiKey=$_apiKey');
 
     try {

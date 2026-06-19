@@ -9,6 +9,7 @@ import 'package:digl/services/user_role_service.dart';
 import 'package:digl/services/logout_service.dart';
 import 'package:digl/features/settings/presentation/pages/health_assessment_screen.dart';
 import 'package:digl/features/medical_profile/presentation/pages/ai_symptom_questions_screen.dart';
+import 'package:digl/features/settings/presentation/pages/static_info_pages.dart';
 import 'package:provider/provider.dart';
 
 /// ⚙️ صفحة الإعدادات المحترفة
@@ -420,19 +421,19 @@ class _SettingsScreenState extends State<SettingsScreen>
               },
             ),
             const Divider(),
-            // ListTile(
-            //   leading: const Icon(Icons.psychology_alt_rounded),
-            //   title: const Text('اسأل الذكاء الاصطناعي'),
-            //   subtitle: const Text('فتح أسئلة الذكاء الاصطناعي يدويًا عند الحاجة'),
-            //   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            //   onTap: () {
-            //     Navigator.of(context).push(
-            //       MaterialPageRoute(
-            //         builder: (context) => const AiSymptomQuestionsScreen(),
-            //       ),
-            //     );
-            //   },
-            // ),
+            ListTile(
+              leading: const Icon(Icons.psychology_alt_rounded),
+              title: const Text('أسئلة الذكاء الاصطناعي'),
+              subtitle: const Text('فتح أسئلة الذكاء الاصطناعي يدويًا عند الحاجة'),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const AiSymptomQuestionsScreen(),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -607,9 +608,9 @@ class _SettingsScreenState extends State<SettingsScreen>
               leading: const Icon(Icons.info),
               title: const Text('عن التطبيق'),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {
-                _showSnackBar('الإصدار: 1.0.0');
-              },
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const AboutAppPage()),
+              ),
             ),
 
             const Divider(),
@@ -619,9 +620,21 @@ class _SettingsScreenState extends State<SettingsScreen>
               leading: const Icon(Icons.privacy_tip),
               title: const Text('سياسة الخصوصية'),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {
-                _showSnackBar('سيتم فتح سياسة الخصوصية');
-              },
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const PrivacyPolicyPage()),
+              ),
+            ),
+
+            const Divider(),
+
+            // شروط الاستخدام
+            ListTile(
+              leading: const Icon(Icons.gavel_rounded),
+              title: const Text('شروط الاستخدام'),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const TermsOfUsePage()),
+              ),
             ),
 
             const Divider(),
@@ -631,9 +644,9 @@ class _SettingsScreenState extends State<SettingsScreen>
               leading: const Icon(Icons.support_agent),
               title: const Text('الدعم الفني'),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {
-                _showSnackBar('support@digl.com');
-              },
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const SupportPage()),
+              ),
             ),
 
             const Divider(),
