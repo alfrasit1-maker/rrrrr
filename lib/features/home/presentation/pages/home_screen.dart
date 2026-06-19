@@ -144,7 +144,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _fetchHealthNews() async {
-    const apiKey = '549d849192e84b2d9c96d5e29f8ff3c5';
+    const apiKey = String.fromEnvironment('NEWS_API_KEY');
+    if (apiKey.isEmpty) {
+      debugPrint('NEWS_API_KEY is not configured; skipping remote health news.');
+      return;
+    }
     final url = Uri.parse(
       'https://newsapi.org/v2/everything?q=الصحة OR الطب OR الوقاية OR العلاج&language=ar&sortBy=publishedAt&apiKey=$apiKey',
     );
@@ -341,12 +345,14 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       ),
       extendBody: true,
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'global_ai_chat_fab',
-        onPressed: () => Navigator.of(context).pushNamed('/medical_ai_chat'),
-        icon: const Icon(Icons.smart_toy_rounded),
-        label: const Text('مساعد AI'),
-      ),
+      floatingActionButton: currentUserModel!.isPatient
+          ? FloatingActionButton.extended(
+              heroTag: 'global_ai_chat_fab',
+              onPressed: () => Navigator.of(context).pushNamed('/medical_ai_chat'),
+              icon: const Icon(Icons.smart_toy_rounded),
+              label: const Text('مساعد AI'),
+            )
+          : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: ModernBottomNavBar(
         currentIndex: _currentIndex,

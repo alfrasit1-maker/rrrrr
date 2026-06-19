@@ -30,19 +30,41 @@ class MedicalAiRepository {
   Future<String> sendMessage(MedicalIntake intake, List<AiChatMessage> history, String message) =>
       apiService.sendMedicalMessage(intake: intake, history: history, message: message);
 
+  String get _historyKey {
+    final uid = auth.currentUser?.uid;
+    return uid == null ? 'medical_ai_chat_history_guest' : 'medical_ai_chat_history_$uid';
+  }
+
   Future<void> saveMessage(AiChatMessage message) async {
     final uid = auth.currentUser?.uid;
     final prefs = await SharedPreferences.getInstance();
-    final current = prefs.getStringList('medical_ai_chat_history') ?? <String>[];
+    final current = prefs.getStringList(_historyKey) ?? <String>[];
     current.add(jsonEncode({'id': message.id, ...message.toMap(firestore: false)}));
-    await prefs.setStringList('medical_ai_chat_history', current.take(200).toList());
+    await prefs.setStringList(_historyKey, current.length > 200 ? current.sublist(current.length - 200) : current);
     if (uid == null) return;
     await firestore.collection('users').doc(uid).collection('medical_ai_chats').doc(message.id).set(message.toMap());
   }
 
   Future<List<AiChatMessage>> loadLocalMessages() async {
+    final uid = auth.currentUser?.uid;
+    if (uid != null) {
+      try {
+        final snapshot = await firestore
+            .collection('users')
+            .doc(uid)
+            .collection('medical_ai_chats')
+            .orderBy('createdAt')
+            .limitToLast(200)
+            .get();
+        final remote = snapshot.docs.map((doc) => AiChatMessage.fromMap(doc.id, doc.data())).toList();
+        if (remote.isNotEmpty) return remote;
+      } catch (_) {
+        // نستخدم النسخة المحلية الخاصة بالمستخدم إذا تعذر Firestore مؤقتاً.
+      }
+    }
+
     final prefs = await SharedPreferences.getInstance();
-    return (prefs.getStringList('medical_ai_chat_history') ?? <String>[]).map((raw) {
+    return (prefs.getStringList(_historyKey) ?? <String>[]).map((raw) {
       final map = jsonDecode(raw) as Map<String, dynamic>;
       return AiChatMessage.fromMap(map['id'].toString(), map);
     }).toList();

@@ -5,7 +5,6 @@ import '../models/medical_intake.dart';
 class MedicalAiApiService {
   // اترك المفتاح فارغاً داخل الكود، ومرره وقت التشغيل عبر:
   // --dart-define=GEMINI_API_KEY=YOUR_KEY
-  static const String _defaultGeminiApiKey = '';
 
   final Dio _dio;
   final String? baseUrl;
@@ -13,11 +12,8 @@ class MedicalAiApiService {
 
   MedicalAiApiService({
     Dio? dio,
-    this.baseUrl = const String.fromEnvironment(''),
-    this.apiKey = const String.fromEnvironment(
-      '',
-      defaultValue: _defaultGeminiApiKey,
-    ),
+    this.baseUrl = const String.fromEnvironment('GEMINI_API_BASE_URL'),
+    this.apiKey = const String.fromEnvironment('GEMINI_API_KEY'),
   }) : _dio = dio ?? Dio();
 
   Future<String> sendMedicalMessage({
@@ -54,7 +50,7 @@ class MedicalAiApiService {
     final key = (apiKey ?? '').trim();
 
     if (key.isEmpty) {
-      return 'لم يتم ضبط مفتاح الذكاء الاصطناعي بعد. أضف GEMINI_API_KEY عبر --dart-define لتفعيل الردود الحقيقية. تحليل أولي: فهمت رسالتك عن "${intake.problem}"، راقب الأعراض واحجز موعداً إذا استمرت الحالة أو زادت الشدة.';
+      return 'لم يتم ضبط مفتاح الذكاء الاصطناعي بعد. شغّل التطبيق باستخدام --dart-define=GEMINI_API_KEY=YOUR_KEY لتفعيل الردود. لن يتم إرسال رسالتك لأي خدمة خارجية حتى يتم ضبط المفتاح.';
     }
 
     final geminiUrl =
@@ -84,10 +80,16 @@ class MedicalAiApiService {
       },
     );
 
-    return (
+    final reply = (
         response.data['candidates']?[0]?['content']?['parts']?[0]?['text'] ??
             ''
-    ).toString();
+    ).toString().trim();
+
+    if (reply.isEmpty) {
+      return 'وصل الطلب إلى خدمة الذكاء الاصطناعي لكن لم يصل رد مفهوم. حاول إعادة صياغة السؤال.';
+    }
+
+    return reply;
   }
 
   String get _systemPrompt =>
